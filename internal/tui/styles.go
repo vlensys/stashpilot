@@ -49,11 +49,11 @@ var (
 				Foreground(lipgloss.Color("#DDD6FE"))
 
 	listBorderStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder(), true, true, true, true).
+			Border(lipgloss.RoundedBorder(), true, false, true, true).
 			BorderForeground(subtle)
 
 	previewBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder(), true, true, true, false).
+				Border(lipgloss.RoundedBorder()).
 				BorderForeground(subtle)
 
 	footerStyle = lipgloss.NewStyle().

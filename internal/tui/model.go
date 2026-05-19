@@ -329,10 +329,14 @@ func (m Model) renderBody() string {
 
 func (m Model) renderList() string {
 	innerH := m.height - 4
-	innerW := listWidth - 2
+	innerW := listWidth - 4
+
+	itemsPerPage := innerH / 2
+	if itemsPerPage < 1 {
+		itemsPerPage = 1
+	}
 
 	startIdx := 0
-	itemsPerPage := innerH
 	if m.cursor >= itemsPerPage {
 		startIdx = m.cursor - itemsPerPage + 1
 	}
@@ -343,14 +347,10 @@ func (m Model) renderList() string {
 	}
 
 	if len(m.stashes) == 0 {
-		rows = append(rows, dimStyle.Width(innerW).Render("no stashes yet — press n to create one"))
+		rows = append(rows, dimStyle.Width(innerW).Render("no stashes yet\npress n to create one"))
 	}
 
 	content := strings.Join(rows, "\n")
-	for len(rows) < itemsPerPage {
-		content += "\n"
-		rows = append(rows, "")
-	}
 
 	return listBorderStyle.
 		Width(listWidth).
@@ -359,38 +359,34 @@ func (m Model) renderList() string {
 }
 
 func (m Model) renderItem(s git.Stash, selected bool, width int) string {
-	var rStyle, bStyle, tStyle, mStyle lipgloss.Style
+	marker := "  "
 	if selected {
-		rStyle = selectedRefStyle
-		bStyle = selectedBranchStyle
-		tStyle = selectedTimeStyle
-		mStyle = selectedStyle
-	} else {
-		rStyle = refStyle
-		bStyle = branchStyle
-		tStyle = timeStyle
-		mStyle = normalStyle
+		marker = selectedRefStyle.Render("▶ ")
 	}
 
-	refStr := rStyle.Render(s.Ref)
-	ageStr := tStyle.Render(formatAge(s.Date))
-	topLine := refStr + "  " + ageStr
+	ref := s.Ref
+	age := formatAge(s.Date)
 
 	msg := s.Message
 	if s.Branch != "" {
-		branchStr := bStyle.Render(s.Branch)
 		rest := strings.TrimPrefix(s.Message, "WIP on "+s.Branch+":")
 		rest = strings.TrimPrefix(rest, "On "+s.Branch+":")
 		rest = strings.TrimSpace(rest)
-		msg = branchStr + "  " + dimStyle.Render(rest)
+		msg = s.Branch + ": " + rest
 	}
-
-	item := topLine + "\n" + mStyle.Render(truncate(stripAnsi(msg), width-2))
+	if len(msg) > width-2 {
+		msg = msg[:width-3] + "…"
+	}
 
 	if selected {
-		return selectedStyle.Width(width).Render(item)
+		topLine := marker + selectedRefStyle.Render(ref) + "  " + selectedTimeStyle.Render(age)
+		msgLine := "  " + selectedStyle.Render(msg)
+		return topLine + "\n" + msgLine
 	}
-	return normalStyle.Width(width).Render(item)
+
+	topLine := marker + refStyle.Render(ref) + "  " + timeStyle.Render(age)
+	msgLine := "  " + dimStyle.Render(msg)
+	return topLine + "\n" + msgLine
 }
 
 func (m Model) renderPreview() string {
@@ -408,12 +404,14 @@ func (m Model) renderPreview() string {
 	scroll := ""
 	if m.viewport.TotalLineCount() > m.viewport.Height {
 		pct := int(m.viewport.ScrollPercent() * 100)
-		scroll = dimStyle.Render(fmt.Sprintf(" %d%%", pct))
+		scroll = dimStyle.Render(fmt.Sprintf("%d%%", pct))
 	}
 
-	headerLine := lipgloss.NewStyle().
-		Width(pw - 2).
-		Render(previewTitle + lipgloss.NewStyle().Width(pw-2-lipgloss.Width(previewTitle)-lipgloss.Width(scroll)).Render("") + scroll)
+	spacerW := pw - 2 - lipgloss.Width(previewTitle) - lipgloss.Width(scroll)
+	if spacerW < 0 {
+		spacerW = 0
+	}
+	headerLine := previewTitle + strings.Repeat(" ", spacerW) + scroll
 
 	content := headerLine + "\n" + m.viewport.View()
 
@@ -522,23 +520,4 @@ func truncate(s string, max int) string {
 		return s
 	}
 	return s[:max-1] + "…"
-}
-
-func stripAnsi(s string) string {
-	var b strings.Builder
-	inEsc := false
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\x1b' {
-			inEsc = true
-			continue
-		}
-		if inEsc {
-			if s[i] == 'm' {
-				inEsc = false
-			}
-			continue
-		}
-		b.WriteByte(s[i])
-	}
-	return b.String()
 }
