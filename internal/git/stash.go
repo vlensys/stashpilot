@@ -3,6 +3,7 @@ package git
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -17,15 +18,22 @@ type Stash struct {
 	Date    time.Time
 }
 
+func gitCmd(args ...string) *exec.Cmd {
+	cwd, _ := os.Getwd()
+	cmd := exec.Command("git", args...)
+	cmd.Dir = cwd
+	return cmd
+}
+
 func IsRepo() bool {
-	return exec.Command("git", "rev-parse", "--git-dir").Run() == nil
+	return gitCmd("rev-parse", "--git-dir").Run() == nil
 }
 
 func List() ([]Stash, error) {
-	out, err := exec.Command("git", "stash", "list", "--format=%gd\x00%gs\x00%ci").Output()
+	out, err := gitCmd("stash", "list", "--format=%gd\x00%gs\x00%ci").Output()
 	if err != nil {
 		if len(out) == 0 {
-			return nil, fmt.Errorf("not a git repository or git error")
+			return nil, fmt.Errorf("git error")
 		}
 	}
 
@@ -49,12 +57,10 @@ func List() ([]Stash, error) {
 
 		date, _ := time.Parse("2006-01-02 15:04:05 -0700", dateStr)
 
-		branch := extractBranch(msg)
-
 		stashes = append(stashes, Stash{
 			Index:   i,
 			Ref:     ref,
-			Branch:  branch,
+			Branch:  extractBranch(msg),
 			Message: msg,
 			Date:    date,
 		})
@@ -73,12 +79,12 @@ func extractBranch(msg string) string {
 }
 
 func Diff(ref string) (string, error) {
-	stat, err := exec.Command("git", "stash", "show", "--stat", ref).Output()
+	stat, err := gitCmd("stash", "show", "--stat", ref).Output()
 	if err != nil {
 		return "", err
 	}
 
-	patch, err := exec.Command("git", "stash", "show", "-p", ref).Output()
+	patch, err := gitCmd("stash", "show", "-p", ref).Output()
 	if err != nil {
 		return string(stat), nil
 	}
@@ -87,7 +93,7 @@ func Diff(ref string) (string, error) {
 }
 
 func Apply(ref string) error {
-	out, err := exec.Command("git", "stash", "apply", ref).CombinedOutput()
+	out, err := gitCmd("stash", "apply", ref).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
 	}
@@ -95,7 +101,7 @@ func Apply(ref string) error {
 }
 
 func Pop(index int) error {
-	out, err := exec.Command("git", "stash", "pop", "stash@{"+strconv.Itoa(index)+"}").CombinedOutput()
+	out, err := gitCmd("stash", "pop", "stash@{"+strconv.Itoa(index)+"}").CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
 	}
@@ -103,7 +109,7 @@ func Pop(index int) error {
 }
 
 func Drop(index int) error {
-	out, err := exec.Command("git", "stash", "drop", "stash@{"+strconv.Itoa(index)+"}").CombinedOutput()
+	out, err := gitCmd("stash", "drop", "stash@{"+strconv.Itoa(index)+"}").CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
 	}
@@ -115,7 +121,7 @@ func Push(message string) error {
 	if message != "" {
 		args = append(args, "-m", message)
 	}
-	out, err := exec.Command("git", args...).CombinedOutput()
+	out, err := gitCmd(args...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
 	}
