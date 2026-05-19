@@ -1,6 +1,6 @@
 # stashpilot
 
-A TUI for managing git stashes — the part of git that `git stash list` makes miserable.
+A TUI tool for managing git stashes, the part of git that `git stash list` makes miserable.
 
 ```
 ╭────────────────────────────╮╭─────────────────────────────────────────╮
