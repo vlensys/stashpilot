@@ -30,6 +30,19 @@ A TUI for managing git stashes — the part of git that `git stash list` makes m
 go install github.com/vlensys/stashpilot@latest
 ```
 
+If `stashpilot` isn't found after installing, add Go's bin directory to your PATH:
+
+```sh
+# fish
+fish_add_path $HOME/go/bin
+
+# bash
+echo 'export PATH="$PATH:$HOME/go/bin"' >> ~/.bashrc && source ~/.bashrc
+
+# zsh
+echo 'export PATH="$PATH:$HOME/go/bin"' >> ~/.zshrc && source ~/.zshrc
+```
+
 Or clone and build:
 
 ```sh
