@@ -30,11 +30,13 @@ func IsRepo() bool {
 }
 
 func List() ([]Stash, error) {
-	out, err := gitCmd("stash", "list", "--format=%gd\x00%gs\x00%ci").Output()
+	out, err := gitCmd("stash", "list", "--format=%gd\t%gs\t%ci").CombinedOutput()
 	if err != nil {
-		if len(out) == 0 {
-			return nil, fmt.Errorf("git error")
+		msg := strings.TrimSpace(string(out))
+		if msg == "" {
+			msg = err.Error()
 		}
+		return nil, fmt.Errorf("%s", msg)
 	}
 
 	raw := strings.TrimSpace(string(out))
@@ -46,7 +48,7 @@ func List() ([]Stash, error) {
 	stashes := make([]Stash, 0, len(lines))
 
 	for i, line := range lines {
-		parts := strings.SplitN(line, "\x00", 3)
+		parts := strings.SplitN(line, "\t", 3)
 		if len(parts) < 3 {
 			continue
 		}
