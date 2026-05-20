@@ -21,10 +21,6 @@ A TUI tool for managing git stashes, the part of git that `git stash list` makes
  stash@{1} applied successfully  ↑/↓ nav  a apply  p pop  d drop  n new  r refresh  q quit
 ```
 
-## The problem
-
-`git stash list` shows you a flat list with no content. To see what's in a stash you need `git stash show -p stash@{2}`, and to apply the right one without losing it you need to remember the index, type `git stash apply stash@{2}`, then check it worked. You've done this wrong at least once.
-
 ## Install
 
 ```sh
