@@ -127,5 +127,8 @@ func Push(message string) error {
 	if err != nil {
 		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
 	}
+	if strings.Contains(string(out), "No local changes to save") {
+		return fmt.Errorf("no local changes to save")
+	}
 	return nil
 }
