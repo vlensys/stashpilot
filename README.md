@@ -4,7 +4,7 @@ A TUI tool for managing git stashes, the part of git that `git stash list` makes
 
 
 ```
-╭────────────────────────────╮╭─────────────────────────────────────────╮
+╭────────────────────────────╮╭──────────────────────────────────────────╮
 │ stash@{0}       just now   ││ stash@{0}                           12%  │
 │ main: WIP: add feature foo ││                                          │
 │ stash@{1}       2h ago     ││  file.txt | 2 +-                         │
@@ -17,7 +17,7 @@ A TUI tool for managing git stashes, the part of git that `git stash list` makes
 │                            ││ @@ -1 +1,2 @@                            │
 │                            ││  hello                                   │
 │                            ││ +change2                                 │
-╰────────────────────────────╯╰─────────────────────────────────────────╯
+╰────────────────────────────╯╰──────────────────────────────────────────╯
  stash@{1} applied successfully  ↑/↓ nav  a apply  p pop  d drop  n new  r refresh  q quit
 ```
 
