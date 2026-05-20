@@ -2,24 +2,8 @@
 
 A TUI tool for managing git stashes, the part of git that `git stash list` makes miserable.
 
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/7c48449f-4fb0-401e-a3a9-7ecc9626a50d" />
 
-```
-╭────────────────────────────╮╭──────────────────────────────────────────╮
-│ stash@{0}       just now   ││ stash@{0}                           12%  │
-│ main: WIP: add feature foo ││                                          │
-│ stash@{1}       2h ago     ││  file.txt | 2 +-                         │
-│ main: WIP: refactor bar    ││  1 file changed, 1 insertion(+), 1 del.. │
-│ stash@{2}       3d ago     ││                                          │
-│ main: WIP: new go file     ││ diff --git a/file.txt b/file.txt         │
-│                            ││ index ...                                │
-│                            ││ --- a/file.txt                           │
-│                            ││ +++ b/file.txt                           │
-│                            ││ @@ -1 +1,2 @@                            │
-│                            ││  hello                                   │
-│                            ││ +change2                                 │
-╰────────────────────────────╯╰──────────────────────────────────────────╯
- stash@{1} applied successfully  ↑/↓ nav  a apply  p pop  d drop  n new  r refresh  q quit
-```
 
 ## Install
 
